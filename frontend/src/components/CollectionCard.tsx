@@ -60,7 +60,7 @@ export function CollectionCard({
   }
 
   return (
-    <Card className="group relative flex flex-col overflow-hidden transition-shadow duration-200 hover:shadow-md">
+    <Card className="group relative flex flex-col overflow-hidden transition-all duration-200 hover:shadow-lg">
       {/* Cover: adaptive collage of up to 4 images, or a placeholder. */}
       <button
         type="button"
@@ -89,7 +89,6 @@ export function CollectionCard({
         )}
       </button>
 
-      {/* Text info area, separated from the thumbnails by a subtle border. */}
       <div className="border-t border-border/50 px-4 py-3">
         <div className="flex items-start justify-between gap-2">
           <h3 className="line-clamp-1 text-lg font-semibold leading-tight">
@@ -106,10 +105,15 @@ export function CollectionCard({
         </p>
       </div>
 
-      {/* Hover action overlay. The overlay itself is click-through so the card
-          still opens when the darkened area is clicked; only the buttons
-          capture clicks, and only while hovered. */}
-      <div className="pointer-events-none absolute inset-0 flex items-end justify-end bg-gradient-to-t from-black/60 via-black/10 to-transparent p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+      {/* Hover overlay — scoped to the thumbnail area only so the text area
+          below is never darkened. Buttons appear bottom-right of the image. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-44 flex items-end justify-end bg-gradient-to-t from-black/60 via-black/10 to-transparent p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        {/* "Shared" badge — top-left, only visible on hover */}
+        {collection.shareCode && (
+          <div className="pointer-events-none absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white shadow-sm backdrop-blur-sm">
+            <Share2 className="h-3.5 w-3.5" />
+          </div>
+        )}
         <TooltipProvider delayDuration={200}>
           <div className="pointer-events-none flex gap-2 group-hover:pointer-events-auto">
             <Tooltip>

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { Eye, ImageOff, Trash2 } from 'lucide-react'
+import { ImageOff, Trash2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -82,11 +82,26 @@ function GridFigure({
         )}
       </div>
 
-      {/* Hover overlay */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-        {/* Top-right action row */}
+      {/* Hover overlay: two-zone gradient (top for action button, bottom for caption) */}
+      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        {/* Top scrim — gives the save/trash button contrast against bright images */}
+        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/40 to-transparent" />
+
+        {/* Bottom scrim + caption */}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 pt-8">
+          <figcaption className="space-y-0.5 text-white">
+            <p className="line-clamp-1 text-sm font-medium capitalize leading-tight">
+              {img.title}
+            </p>
+            {img.source && (
+              <p className="text-xs capitalize opacity-60">{img.source}</p>
+            )}
+          </figcaption>
+        </div>
+
+        {/* Action button — top-right, pointer-events re-enabled */}
         <div
-          className="pointer-events-auto flex justify-end gap-2 p-2"
+          className="pointer-events-auto absolute right-2 top-2 flex gap-2"
           onClick={(e) => e.stopPropagation()}
         >
           {mode === 'save' && renderAction?.(img)}
@@ -102,14 +117,6 @@ function GridFigure({
             </Button>
           )}
         </div>
-
-        {/* Bottom caption */}
-        <figcaption className="flex items-end justify-between gap-2 p-3 text-white">
-          <span className="line-clamp-2 text-sm font-medium capitalize">
-            {img.title}
-          </span>
-          <Eye className="h-4 w-4 shrink-0 opacity-80" />
-        </figcaption>
       </div>
     </figure>
   )

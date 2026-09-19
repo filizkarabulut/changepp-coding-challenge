@@ -55,48 +55,48 @@ export function CollectionDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-h-[85vh] w-full max-w-4xl overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between gap-3 pr-8">
-            <DialogTitle className="flex items-center gap-2">
-              {collection.name}
-              <Badge
-                variant={collection.isPublic ? 'default' : 'secondary'}
-                className="gap-1"
-              >
-                {collection.isPublic ? (
-                  <Globe className="h-3 w-3" />
-                ) : (
-                  <Lock className="h-3 w-3" />
-                )}
-                {collection.isPublic ? 'Public' : 'Private'}
-              </Badge>
-            </DialogTitle>
-            <div className="flex shrink-0 items-center gap-2">
-              <Button
-                size="sm"
-                className="gap-1.5"
-                onClick={() => setPhotoSearchOpen(true)}
-              >
-                <ImagePlus className="h-4 w-4" />
-                Add Photos
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5"
-                onClick={() => onShare(collection)}
-              >
-                <Share2 className="h-4 w-4" />
-                Share
-              </Button>
-            </div>
-          </div>
+          <DialogTitle className="flex flex-wrap items-center gap-2 text-xl">
+            {collection.name}
+            <Badge
+              variant={collection.isPublic ? 'default' : 'secondary'}
+              className="gap-1"
+            >
+              {collection.isPublic ? (
+                <Globe className="h-3 w-3" />
+              ) : (
+                <Lock className="h-3 w-3" />
+              )}
+              {collection.isPublic ? 'Public' : 'Private'}
+            </Badge>
+          </DialogTitle>
           <DialogDescription>
-            {collection.description || 'No description'} · {collection.imageCount}{' '}
+            {collection.description || 'No description'} ·{' '}
+            {collection.imageCount}{' '}
             {collection.imageCount === 1 ? 'image' : 'images'}
           </DialogDescription>
         </DialogHeader>
+
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            className="gap-1.5"
+            onClick={() => setPhotoSearchOpen(true)}
+          >
+            <ImagePlus className="h-4 w-4" />
+            Add Photos
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => onShare(collection)}
+          >
+            <Share2 className="h-4 w-4" />
+            Share
+          </Button>
+        </div>
 
         <ImageGrid
           images={images}
@@ -107,21 +107,19 @@ export function CollectionDetailModal({
         />
       </DialogContent>
 
-      {/* Nested full-size preview */}
+      {/* Full-size preview — nested inside this dialog */}
       <ImageModal
         image={preview}
         open={preview !== null}
         onOpenChange={(o) => !o && setPreview(null)}
       />
 
-      {/* Add photos via Pixabay search */}
       <PhotoSearchModal
         collectionId={collection._id}
         open={photoSearchOpen}
         onOpenChange={setPhotoSearchOpen}
       />
 
-      {/* Remove-image confirmation */}
       <ConfirmDialog
         open={pendingRemove !== null}
         onOpenChange={(o) => !o && setPendingRemove(null)}

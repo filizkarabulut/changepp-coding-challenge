@@ -25,8 +25,8 @@ export function NavBar() {
     cn(
       'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
       isActive
-        ? 'bg-secondary text-secondary-foreground'
-        : 'text-muted-foreground hover:text-foreground'
+        ? 'bg-primary/10 text-primary'
+        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
     )
 
   return (
@@ -51,7 +51,7 @@ export function NavBar() {
             size="icon"
             className="ml-1"
             onClick={() => setDark((d) => !d)}
-            title="Toggle theme"
+            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>

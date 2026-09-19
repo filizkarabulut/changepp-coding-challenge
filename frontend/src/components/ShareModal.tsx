@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Check, Copy, Globe, Link2, Loader2, Lock } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -13,6 +13,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useApp } from '@/context/AppContext'
+import {
+  formatRelativeTime,
+  getShareGeneratedAt,
+  setShareGeneratedAt,
+} from '@/lib/sharedHistory'
 import type { Collection } from '@/types'
 
 interface ShareModalProps {
@@ -23,13 +28,19 @@ interface ShareModalProps {
 
 /**
  * Dialog for sharing a collection: toggle public/private, generate a share
- * link, and copy it to the clipboard.
+ * link, copy it, and scan a QR code to open it on another device.
  */
 export function ShareModal({ collection, open, onOpenChange }: ShareModalProps) {
   const { togglePublic, generateShareLink } = useApp()
   const [generating, setGenerating] = useState(false)
   const [togglingPublic, setTogglingPublic] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [generatedAt, setGeneratedAt] = useState<string | null>(null)
+
+  // Sync the "generated at" label whenever a (different) collection is shown.
+  useEffect(() => {
+    setGeneratedAt(collection ? getShareGeneratedAt(collection._id) : null)
+  }, [collection, open])
 
   if (!collection) return null
 
@@ -43,7 +54,9 @@ export function ShareModal({ collection, open, onOpenChange }: ShareModalProps) 
     try {
       await togglePublic(collection._id)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not update visibility')
+      toast.error(
+        err instanceof Error ? err.message : 'Could not update visibility'
+      )
     } finally {
       setTogglingPublic(false)
     }
@@ -53,6 +66,8 @@ export function ShareModal({ collection, open, onOpenChange }: ShareModalProps) 
     setGenerating(true)
     try {
       await generateShareLink(collection._id)
+      setShareGeneratedAt(collection._id)
+      setGeneratedAt(new Date().toISOString())
       toast.success('Share link ready')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not generate link')
@@ -74,7 +89,7 @@ export function ShareModal({ collection, open, onOpenChange }: ShareModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Share “{collection.name}”</DialogTitle>
           <DialogDescription>
@@ -82,8 +97,7 @@ export function ShareModal({ collection, open, onOpenChange }: ShareModalProps) 
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Public / private toggle */}
+        <div className="space-y-5">
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="flex items-center gap-3">
               {collection.isPublic ? (
@@ -110,33 +124,44 @@ export function ShareModal({ collection, open, onOpenChange }: ShareModalProps) 
             />
           </div>
 
-          {/* Share link */}
           {collection.shareCode ? (
-            <div className="space-y-2">
-              <Label>Share link</Label>
-              <div className="flex gap-2">
-                <Input readOnly value={shareUrl} className="font-mono text-xs" />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="icon"
-                  onClick={handleCopy}
-                  title="Copy link"
-                >
-                  {copied ? (
-                    <Check className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
+            <>
+              <div className="space-y-2">
+                <Label>Share via</Label>
+                <div className="flex gap-2">
+                  <Input
+                    readOnly
+                    value={shareUrl}
+                    onFocus={(e) => e.currentTarget.select()}
+                    className="font-mono text-xs"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleCopy}
+                    className="shrink-0 gap-1.5"
+                  >
+                    {copied ? (
+                      <Check className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                    Copy link
+                  </Button>
+                </div>
+                {generatedAt && (
+                  <p className="text-xs text-muted-foreground">
+                    Link generated {formatRelativeTime(generatedAt)}
+                  </p>
+                )}
+                {!collection.isPublic && (
+                  <p className="text-xs text-destructive">
+                    This collection is private — turn on Public so others can
+                    open the link.
+                  </p>
+                )}
               </div>
-              {!collection.isPublic && (
-                <p className="text-xs text-destructive">
-                  This collection is private — turn on Public so others can open
-                  the link.
-                </p>
-              )}
-            </div>
+            </>
           ) : (
             <Button
               type="button"
