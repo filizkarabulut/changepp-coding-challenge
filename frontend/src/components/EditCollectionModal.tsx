@@ -13,7 +13,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import { PhotoSearchModal } from '@/components/PhotoSearchModal'
+import { VisibilityBadge } from '@/components/VisibilityBadge'
 import { useApp } from '@/context/AppContext'
 import type { Collection } from '@/types'
 
@@ -32,10 +34,11 @@ export function EditCollectionModal({
   open,
   onOpenChange,
 }: EditCollectionModalProps) {
-  const { updateCollection } = useApp()
+  const { updateCollection, togglePublic } = useApp()
   const [name, setName] = useState(collection.name)
   const [description, setDescription] = useState(collection.description ?? '')
   const [submitting, setSubmitting] = useState(false)
+  const [togglingPublic, setTogglingPublic] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [photoSearchOpen, setPhotoSearchOpen] = useState(false)
 
@@ -48,6 +51,19 @@ export function EditCollectionModal({
       setError(null)
     }
   }, [open, collection.name, collection.description])
+
+  const handleToggle = async () => {
+    setTogglingPublic(true)
+    try {
+      await togglePublic(collection._id)
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Could not update visibility'
+      )
+    } finally {
+      setTogglingPublic(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -105,6 +121,22 @@ export function EditCollectionModal({
                 maxLength={500}
                 placeholder="What's this collection about?"
                 onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            {/* Visibility toggle */}
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="edit-public-toggle" className="text-sm">
+                  Make Public
+                </Label>
+                <VisibilityBadge isPublic={collection.isPublic} />
+              </div>
+              <Switch
+                id="edit-public-toggle"
+                checked={collection.isPublic}
+                disabled={togglingPublic}
+                onCheckedChange={handleToggle}
               />
             </div>
 

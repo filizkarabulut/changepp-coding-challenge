@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
 interface SearchBarProps {
   placeholder?: string
@@ -10,6 +11,8 @@ interface SearchBarProps {
   delay?: number
   defaultValue?: string
   autoFocus?: boolean
+  /** Extra classes for the underlying input. */
+  className?: string
 }
 
 /**
@@ -22,6 +25,7 @@ export function SearchBar({
   delay = 300,
   defaultValue = '',
   autoFocus = false,
+  className,
 }: SearchBarProps) {
   const [value, setValue] = useState(defaultValue)
 
@@ -46,7 +50,7 @@ export function SearchBar({
         autoFocus={autoFocus}
         placeholder={placeholder}
         onChange={(e) => setValue(e.target.value)}
-        className="pl-9"
+        className={cn('pl-9', className)}
       />
     </div>
   )
