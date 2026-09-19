@@ -1,17 +1,23 @@
 import { useMemo, useState } from 'react'
+import { cn } from '@/lib/utils'
 import { SearchBar } from '@/components/SearchBar'
 import { CollectionList } from '@/components/CollectionList'
 import { CreateCollectionModal } from '@/components/CreateCollectionModal'
 import { ShareModal } from '@/components/ShareModal'
 import { CollectionDetailModal } from '@/components/CollectionDetailModal'
+import { SharedWithMe } from '@/components/SharedWithMe'
 import { useApp } from '@/context/AppContext'
 import type { Collection } from '@/types'
 
+type Tab = 'mine' | 'shared'
+
 /**
- * Collections page: view, filter, create, open, and share your collections.
+ * Collections page: view, filter, create, open, and share your collections,
+ * plus a "Shared with me" tab for opening collections others have shared.
  */
 export function CollectionsPage() {
   const { collections, loading, error } = useApp()
+  const [tab, setTab] = useState<Tab>('mine')
   const [query, setQuery] = useState('')
   // Track selections by id so the modals always render the live collection
   // from context (reflecting edits like removing images or toggling public).
@@ -32,44 +38,76 @@ export function CollectionsPage() {
 
   return (
     <div className="container py-8">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Your collections</h1>
-          <p className="text-sm text-muted-foreground">
-            {collections.length}{' '}
-            {collections.length === 1 ? 'collection' : 'collections'}
-          </p>
+      {/* Tabs */}
+      <div className="mb-4 flex items-center justify-between border-b">
+        <div className="flex gap-1">
+          {(
+            [
+              ['mine', 'Collections'],
+              ['shared', 'Shared with me'],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setTab(value)}
+              className={cn(
+                '-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors',
+                tab === value
+                  ? 'border-primary text-foreground'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              )}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-        <CreateCollectionModal />
+        {tab === 'mine' && <CreateCollectionModal />}
       </div>
 
-      {collections.length > 0 && (
-        <div className="mb-6 max-w-md">
-          <SearchBar
-            placeholder="Filter collections by name…"
-            onSearch={setQuery}
-            delay={150}
-            className="border-border/60 shadow-sm"
-          />
-        </div>
-      )}
+      {tab === 'mine' ? (
+        <>
+          {/* Count subtitle + compact filter */}
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              {collections.length}{' '}
+              {collections.length === 1 ? 'collection' : 'collections'}
+            </p>
+            {collections.length > 0 && (
+              <div className="w-48">
+                <SearchBar
+                  placeholder="Filter…"
+                  onSearch={setQuery}
+                  delay={150}
+                  className="h-8 text-sm"
+                />
+              </div>
+            )}
+          </div>
 
-      {error ? (
-        <p className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </p>
+          {error ? (
+            <p className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {error}
+            </p>
+          ) : (
+            <CollectionList
+              collections={filtered}
+              loading={loading}
+              onOpen={(c) => setDetailId(c._id)}
+              onShare={openShare}
+              emptyAction={<CreateCollectionModal />}
+              emptyMessage={
+                query
+                  ? `No collections match “${query}”.`
+                  : 'No collections yet. Create your first one to start saving images.'
+              }
+            />
+          )}
+        </>
       ) : (
-        <CollectionList
-          collections={filtered}
-          loading={loading}
+        <SharedWithMe
           onOpen={(c) => setDetailId(c._id)}
           onShare={openShare}
-          emptyAction={<CreateCollectionModal />}
-          emptyMessage={
-            query
-              ? `No collections match “${query}”.`
-              : 'No collections yet. Create your first one to start saving images.'
-          }
         />
       )}
 

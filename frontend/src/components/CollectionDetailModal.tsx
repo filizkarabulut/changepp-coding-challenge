@@ -55,10 +55,10 @@ export function CollectionDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-h-[85vh] w-full max-w-4xl overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between gap-3 pr-8">
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-xl">
               {collection.name}
               <Badge
                 variant={collection.isPublic ? 'default' : 'secondary'}
