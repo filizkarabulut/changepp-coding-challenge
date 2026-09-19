@@ -44,26 +44,33 @@ export function SharedWithMe({ onOpen, onShare }: SharedWithMeProps) {
 
   return (
     <div>
-      {/* Compact paste-a-link bar */}
+      {/* Paste-a-link bar — styled as an integrated input row */}
       <form
         onSubmit={handleSubmit}
-        className="mb-6 flex flex-wrap items-center gap-2"
+        className="mb-6 flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2"
       >
-        <span className="text-sm text-muted-foreground">Have a share link?</span>
+        <span className="shrink-0 text-sm text-muted-foreground">
+          Have a share link?
+        </span>
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Paste link or code…"
           aria-label="Share link or code"
-          className="h-9 w-64 text-sm"
+          className="h-8 flex-1 border-0 bg-transparent text-sm shadow-none focus-visible:ring-0"
         />
-        <Button type="submit" size="sm" className="h-9 gap-1.5" disabled={!value.trim()}>
+        <Button
+          type="submit"
+          size="sm"
+          className="h-8 shrink-0 gap-1"
+          disabled={!value.trim()}
+        >
           View
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight className="h-3.5 w-3.5" />
         </Button>
       </form>
 
-      <h2 className="mb-4 text-sm font-medium text-muted-foreground">
+      <h2 className="mb-4 text-sm font-semibold text-foreground">
         Collections shared with you
       </h2>
 
@@ -73,12 +80,12 @@ export function SharedWithMe({ onOpen, onShare }: SharedWithMeProps) {
           <div className="space-y-1">
             <p className="font-medium">No shared collections yet</p>
             <p className="max-w-sm text-sm text-muted-foreground">
-              Paste a share link above to view someone’s collection.
+              Paste a share link above to view someone's collection.
             </p>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {shared.map((collection) => (
             <CollectionCard
               key={collection._id}

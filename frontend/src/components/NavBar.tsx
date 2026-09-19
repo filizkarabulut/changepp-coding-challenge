@@ -25,8 +25,8 @@ export function NavBar() {
     cn(
       'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
       isActive
-        ? 'bg-secondary text-secondary-foreground'
-        : 'text-muted-foreground hover:text-foreground'
+        ? 'bg-primary/10 text-primary'
+        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
     )
 
   return (
