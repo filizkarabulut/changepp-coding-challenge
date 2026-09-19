@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Eye, ImageOff, Trash2 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import type { GridImage } from '@/types'
 
 interface ImageGridProps {
@@ -17,6 +18,101 @@ interface ImageGridProps {
   renderAction?: (img: GridImage) => ReactNode
   emptyMessage?: string
   skeletonCount?: number
+}
+
+interface GridFigureProps {
+  img: GridImage
+  mode: 'save' | 'view'
+  onView?: (img: GridImage) => void
+  onRemove?: (img: GridImage) => void
+  renderAction?: (img: GridImage) => ReactNode
+}
+
+/**
+ * A single image tile. Reserves space via the image's aspect ratio so the
+ * masonry layout doesn't reflow as images arrive, shows a pulsing gray skeleton
+ * until the image loads, fades it in on load, and falls back to a gray
+ * placeholder (never broken alt text) if it fails.
+ */
+function GridFigure({
+  img,
+  mode,
+  onView,
+  onRemove,
+  renderAction,
+}: GridFigureProps) {
+  const [loaded, setLoaded] = useState(false)
+  const [errored, setErrored] = useState(false)
+
+  // Keep the tile's shape stable before the image loads; fall back to a
+  // portrait-ish ratio when the source didn't report dimensions.
+  const aspectRatio =
+    img.width && img.height ? `${img.width} / ${img.height}` : '3 / 4'
+
+  return (
+    <figure
+      className="group relative cursor-zoom-in overflow-hidden rounded-lg border bg-muted"
+      onClick={() => onView?.(img)}
+    >
+      {/* Image / skeleton wrapper — gray placeholder shows through until (and
+          if) the image loads. */}
+      <div
+        className={cn(
+          'relative w-full bg-gray-200 dark:bg-gray-800',
+          !loaded && !errored && 'animate-pulse'
+        )}
+        style={{ aspectRatio }}
+      >
+        {errored ? (
+          <div className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-600">
+            <ImageOff className="h-8 w-8" />
+          </div>
+        ) : (
+          <img
+            src={img.previewUrl}
+            alt={img.title}
+            loading="lazy"
+            onLoad={() => setLoaded(true)}
+            onError={() => setErrored(true)}
+            className={cn(
+              'absolute inset-0 h-full w-full object-cover transition-all duration-300 group-hover:scale-105',
+              loaded ? 'opacity-100' : 'opacity-0'
+            )}
+          />
+        )}
+      </div>
+
+      {/* Hover overlay */}
+      <div className="pointer-events-none absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        {/* Top-right action row */}
+        <div
+          className="pointer-events-auto flex justify-end gap-2 p-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {mode === 'save' && renderAction?.(img)}
+          {mode === 'view' && onRemove && (
+            <Button
+              size="icon"
+              variant="destructive"
+              className="h-8 w-8"
+              onClick={() => onRemove(img)}
+              title="Remove image"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+
+        {/* Bottom caption */}
+        <figcaption className="flex items-end justify-between gap-2 p-3 text-white">
+          <span className="line-clamp-2 text-sm font-medium capitalize">
+            {img.title}
+          </span>
+          <Eye className="h-4 w-4 shrink-0 opacity-80" />
+        </figcaption>
+      </div>
+    </figure>
+  )
 }
 
 /**
@@ -59,48 +155,14 @@ export function ImageGrid({
   return (
     <div className="masonry">
       {images.map((img) => (
-        <figure
+        <GridFigure
           key={img.key}
-          className="group relative cursor-zoom-in overflow-hidden rounded-lg border bg-muted"
-          onClick={() => onView?.(img)}
-        >
-          <img
-            src={img.previewUrl}
-            alt={img.title}
-            loading="lazy"
-            className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-
-          {/* Hover overlay */}
-          <div className="pointer-events-none absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-            {/* Top-right action row */}
-            <div
-              className="pointer-events-auto flex justify-end gap-2 p-2"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {mode === 'save' && renderAction?.(img)}
-              {mode === 'view' && onRemove && (
-                <Button
-                  size="icon"
-                  variant="destructive"
-                  className="h-8 w-8"
-                  onClick={() => onRemove(img)}
-                  title="Remove image"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-
-            {/* Bottom caption */}
-            <figcaption className="flex items-end justify-between gap-2 p-3 text-white">
-              <span className="line-clamp-2 text-sm font-medium capitalize">
-                {img.title}
-              </span>
-              <Eye className="h-4 w-4 shrink-0 opacity-80" />
-            </figcaption>
-          </div>
-        </figure>
+          img={img}
+          mode={mode}
+          onView={onView}
+          onRemove={onRemove}
+          renderAction={renderAction}
+        />
       ))}
     </div>
   )
