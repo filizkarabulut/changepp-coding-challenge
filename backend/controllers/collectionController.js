@@ -53,6 +53,36 @@ const deleteCollection = asyncHandler(async (req, res) => {
 });
 
 /**
+ * PATCH /api/collections/:id
+ * Update a collection's editable fields (name and/or description).
+ * Only fields present in the body are changed, so partial updates work.
+ */
+const updateCollection = asyncHandler(async (req, res) => {
+  const { name, description } = req.body;
+
+  const collection = await Collection.findById(req.params.id);
+  if (!collection) {
+    throw new ApiError(404, "Collection not found");
+  }
+
+  if (name !== undefined) {
+    if (!name.trim()) {
+      throw new ApiError(400, "name cannot be empty");
+    }
+    collection.name = name.trim();
+  }
+  if (description !== undefined) {
+    collection.description = description.trim();
+  }
+
+  await collection.save();
+  // Return the full, populated collection so the client can replace its copy.
+  await collection.populate("images");
+
+  res.status(200).json({ success: true, data: collection });
+});
+
+/**
  * PATCH /api/collections/:id/toggle-public
  * Flip a collection between public and private.
  */
@@ -75,6 +105,7 @@ const togglePublic = asyncHandler(async (req, res) => {
 module.exports = {
   getCollections,
   createCollection,
+  updateCollection,
   deleteCollection,
   togglePublic,
 };

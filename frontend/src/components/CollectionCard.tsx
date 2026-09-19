@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Globe, ImageIcon, Loader2, Lock, Share2, Trash2 } from 'lucide-react'
+import { Globe, ImageIcon, Lock, Pencil, Share2, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Card,
@@ -10,14 +10,8 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { EditCollectionModal } from '@/components/EditCollectionModal'
 import { useApp } from '@/context/AppContext'
 import type { Collection } from '@/types'
 
@@ -29,7 +23,7 @@ interface CollectionCardProps {
 
 /**
  * Card summarizing a single collection: cover collage, name, visibility,
- * image count, and share / delete actions.
+ * image count, and share / edit / delete actions.
  */
 export function CollectionCard({
   collection,
@@ -38,20 +32,18 @@ export function CollectionCard({
 }: CollectionCardProps) {
   const { deleteCollection } = useApp()
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [deleting, setDeleting] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
 
   const cover = collection.images.slice(0, 4)
 
   const handleDelete = async () => {
-    setDeleting(true)
     try {
       await deleteCollection(collection._id)
       toast.success(`Deleted “${collection.name}”`)
-      setConfirmOpen(false)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not delete')
-    } finally {
-      setDeleting(false)
+      // Re-throw so the confirmation dialog stays open for a retry.
+      throw err
     }
   }
 
@@ -126,6 +118,14 @@ export function CollectionCard({
         <Button
           variant="ghost"
           size="icon"
+          onClick={() => setEditOpen(true)}
+          title="Edit collection"
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           className="text-muted-foreground hover:text-destructive"
           onClick={() => setConfirmOpen(true)}
           title="Delete collection"
@@ -135,33 +135,23 @@ export function CollectionCard({
       </CardFooter>
 
       {/* Delete confirmation */}
-      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Delete “{collection.name}”?</DialogTitle>
-            <DialogDescription>
-              This permanently removes the collection and its{' '}
-              {collection.imageCount} saved{' '}
-              {collection.imageCount === 1 ? 'image' : 'images'}. This can't be
-              undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleting}
-              className="gap-2"
-            >
-              {deleting && <Loader2 className="h-4 w-4 animate-spin" />}
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title={`Delete “${collection.name}”?`}
+        description={`This will permanently remove the collection and all ${
+          collection.imageCount
+        } ${collection.imageCount === 1 ? 'image' : 'images'} in it.`}
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+      />
+
+      {/* Edit name / description + add more photos */}
+      <EditCollectionModal
+        collection={collection}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
     </Card>
   )
 }

@@ -2,6 +2,7 @@ const express = require("express");
 const {
   getCollections,
   createCollection,
+  updateCollection,
   deleteCollection,
   togglePublic,
 } = require("../controllers/collectionController");
@@ -12,6 +13,9 @@ const router = express.Router();
 // GET  /api/collections        -> list all collections
 // POST /api/collections        -> create a collection
 router.route("/").get(getCollections).post(createCollection);
+
+// PATCH  /api/collections/:id   -> update name / description
+router.patch("/:id", updateCollection);
 
 // DELETE /api/collections/:id   -> delete a collection
 router.delete("/:id", deleteCollection);
