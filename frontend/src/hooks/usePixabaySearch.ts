@@ -63,9 +63,10 @@ export function usePixabaySearch() {
         const params = new URLSearchParams({
           key: PIXABAY_KEY,
           q: trimmed,
+          per_page: '100',
           image_type: 'photo',
-          per_page: '24',
           safesearch: 'true',
+          order: 'popular',
         })
         const res = await fetch(`https://pixabay.com/api/?${params.toString()}`)
         if (!res.ok) {

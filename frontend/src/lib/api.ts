@@ -54,6 +54,15 @@ export const createCollection = (name: string, description?: string) =>
     body: JSON.stringify({ name, description }),
   })
 
+export const updateCollection = (
+  id: string,
+  fields: { name?: string; description?: string }
+) =>
+  request<Collection>(`/collections/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(fields),
+  })
+
 export const deleteCollection = (id: string) =>
   request<unknown>(`/collections/${id}`, { method: 'DELETE' })
 

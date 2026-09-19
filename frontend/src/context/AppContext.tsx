@@ -48,6 +48,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     []
   )
 
+  const updateCollection = useCallback(
+    async (id: string, fields: { name?: string; description?: string }) => {
+      const updated = await api.updateCollection(id, fields)
+      // Server returns the full populated collection; replace our copy.
+      setCollections((prev) => prev.map((c) => (c._id === id ? updated : c)))
+      return updated
+    },
+    []
+  )
+
   const deleteCollection = useCallback(async (id: string) => {
     await api.deleteCollection(id)
     setCollections((prev) => prev.filter((c) => c._id !== id))
@@ -113,6 +123,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     error,
     refresh,
     createCollection,
+    updateCollection,
     deleteCollection,
     addImageToCollection,
     removeImageFromCollection,

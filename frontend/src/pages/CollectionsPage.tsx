@@ -34,7 +34,7 @@ export function CollectionsPage() {
     <div className="container py-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Your collections</h1>
+          <h1 className="text-2xl font-semibold">Your collections</h1>
           <p className="text-sm text-muted-foreground">
             {collections.length}{' '}
             {collections.length === 1 ? 'collection' : 'collections'}
@@ -49,6 +49,7 @@ export function CollectionsPage() {
             placeholder="Filter collections by name…"
             onSearch={setQuery}
             delay={150}
+            className="border-border/60 shadow-sm"
           />
         </div>
       )}

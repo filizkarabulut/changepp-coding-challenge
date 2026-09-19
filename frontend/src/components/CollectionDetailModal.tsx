@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Globe, Lock, Share2 } from 'lucide-react'
+import { Globe, ImagePlus, Lock, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ImageGrid } from '@/components/ImageGrid'
 import { ImageModal } from '@/components/ImageModal'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { PhotoSearchModal } from '@/components/PhotoSearchModal'
 import { useApp } from '@/context/AppContext'
 import { toGridImage } from '@/lib/images'
 import type { Collection, GridImage } from '@/types'
@@ -23,7 +25,7 @@ interface CollectionDetailModalProps {
   onShare: (collection: Collection) => void
 }
 
-/** Modal showing a collection's images with the ability to preview and remove. */
+/** Modal showing a collection's images with the ability to add, preview, and remove. */
 export function CollectionDetailModal({
   collection,
   open,
@@ -32,17 +34,22 @@ export function CollectionDetailModal({
 }: CollectionDetailModalProps) {
   const { removeImageFromCollection } = useApp()
   const [preview, setPreview] = useState<GridImage | null>(null)
+  const [photoSearchOpen, setPhotoSearchOpen] = useState(false)
+  const [pendingRemove, setPendingRemove] = useState<GridImage | null>(null)
 
   if (!collection) return null
 
   const images = collection.images.map(toGridImage)
 
-  const handleRemove = async (img: GridImage) => {
+  const handleConfirmRemove = async () => {
+    if (!pendingRemove) return
     try {
-      await removeImageFromCollection(collection._id, img.key)
+      await removeImageFromCollection(collection._id, pendingRemove.key)
       toast.success('Image removed')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not remove image')
+      // Re-throw so the confirmation dialog stays open for a retry.
+      throw err
     }
   }
 
@@ -65,15 +72,25 @@ export function CollectionDetailModal({
                 {collection.isPublic ? 'Public' : 'Private'}
               </Badge>
             </DialogTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => onShare(collection)}
-            >
-              <Share2 className="h-4 w-4" />
-              Share
-            </Button>
+            <div className="flex shrink-0 items-center gap-2">
+              <Button
+                size="sm"
+                className="gap-1.5"
+                onClick={() => setPhotoSearchOpen(true)}
+              >
+                <ImagePlus className="h-4 w-4" />
+                Add Photos
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => onShare(collection)}
+              >
+                <Share2 className="h-4 w-4" />
+                Share
+              </Button>
+            </div>
           </div>
           <DialogDescription>
             {collection.description || 'No description'} · {collection.imageCount}{' '}
@@ -85,8 +102,8 @@ export function CollectionDetailModal({
           images={images}
           mode="view"
           onView={setPreview}
-          onRemove={handleRemove}
-          emptyMessage="This collection is empty. Save images to it from the Discover page."
+          onRemove={setPendingRemove}
+          emptyMessage="This collection is empty. Click “Add Photos” to fill it."
         />
       </DialogContent>
 
@@ -95,6 +112,23 @@ export function CollectionDetailModal({
         image={preview}
         open={preview !== null}
         onOpenChange={(o) => !o && setPreview(null)}
+      />
+
+      {/* Add photos via Pixabay search */}
+      <PhotoSearchModal
+        collectionId={collection._id}
+        open={photoSearchOpen}
+        onOpenChange={setPhotoSearchOpen}
+      />
+
+      {/* Remove-image confirmation */}
+      <ConfirmDialog
+        open={pendingRemove !== null}
+        onOpenChange={(o) => !o && setPendingRemove(null)}
+        title="Remove image?"
+        description="Remove this image from the collection?"
+        confirmLabel="Remove"
+        onConfirm={handleConfirmRemove}
       />
     </Dialog>
   )

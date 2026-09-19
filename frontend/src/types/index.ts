@@ -72,6 +72,10 @@ export interface AppContextType {
   error: string | null
   refresh: () => Promise<void>
   createCollection: (name: string, description?: string) => Promise<Collection>
+  updateCollection: (
+    id: string,
+    fields: { name?: string; description?: string }
+  ) => Promise<Collection>
   deleteCollection: (id: string) => Promise<void>
   addImageToCollection: (
     collectionId: string,
