@@ -38,7 +38,6 @@ export function CollectionsPage() {
 
   return (
     <div className="container py-8">
-      {/* Tabs */}
       <div className="mb-4 flex items-center justify-between border-b">
         <div className="flex gap-1">
           {(
@@ -67,7 +66,6 @@ export function CollectionsPage() {
 
       {tab === 'mine' ? (
         <>
-          {/* Count subtitle + compact filter */}
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               {collections.length}{' '}

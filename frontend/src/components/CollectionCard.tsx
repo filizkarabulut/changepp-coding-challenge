@@ -89,7 +89,6 @@ export function CollectionCard({
         )}
       </button>
 
-      {/* Text info area, separated from the thumbnails by a subtle border. */}
       <div className="border-t border-border/50 px-4 py-3">
         <div className="flex items-start justify-between gap-2">
           <h3 className="line-clamp-1 text-lg font-semibold leading-tight">

@@ -97,8 +97,7 @@ export function ShareModal({ collection, open, onOpenChange }: ShareModalProps) 
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Public / private toggle */}
+        <div className="space-y-5">
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="flex items-center gap-3">
               {collection.isPublic ? (
@@ -127,7 +126,6 @@ export function ShareModal({ collection, open, onOpenChange }: ShareModalProps) 
 
           {collection.shareCode ? (
             <>
-              {/* Share via */}
               <div className="space-y-2">
                 <Label>Share via</Label>
                 <div className="flex gap-2">

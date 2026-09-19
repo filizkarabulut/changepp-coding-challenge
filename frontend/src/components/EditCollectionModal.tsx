@@ -124,8 +124,7 @@ export function EditCollectionModal({
               />
             </div>
 
-            {/* Visibility toggle */}
-            <div className="flex items-center justify-between rounded-lg border p-3">
+            <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="flex items-center gap-2">
                 <Label htmlFor="edit-public-toggle" className="text-sm">
                   Make Public

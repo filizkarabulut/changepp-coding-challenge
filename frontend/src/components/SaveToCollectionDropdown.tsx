@@ -60,7 +60,7 @@ export function SaveToCollectionDropdown({
         </p>
 
         {collections.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 px-2 py-6 text-center text-sm text-muted-foreground">
+          <div className="flex flex-col items-center gap-2 px-2 py-8 text-center text-sm text-muted-foreground">
             <FolderPlus className="h-6 w-6" />
             <span>No collections yet. Create one first.</span>
           </div>

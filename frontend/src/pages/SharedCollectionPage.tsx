@@ -110,7 +110,6 @@ export function SharedCollectionPage() {
 
   return (
     <div className="container py-8">
-      {/* Shared banner */}
       <div className="mb-6 flex items-center gap-3 rounded-xl border bg-primary/5 px-4 py-3 text-sm">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Users className="h-4 w-4" />
@@ -122,7 +121,6 @@ export function SharedCollectionPage() {
         </span>
       </div>
 
-      {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">

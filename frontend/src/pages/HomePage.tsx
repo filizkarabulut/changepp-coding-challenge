@@ -45,15 +45,14 @@ export function HomePage() {
 
   return (
     <div className="container py-8">
-      {/* Hero */}
-      <div className="mx-auto mb-8 max-w-2xl text-center">
+      <div className="mx-auto mb-10 max-w-2xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
           Discover &amp; save images you love
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-3 text-muted-foreground">
           Search millions of photos and organize them into collections.
         </p>
-        <div className="mx-auto mt-6 max-w-xl">
+        <div className="mx-auto mt-6 max-w-lg">
           <SearchBar
             placeholder="Search for images… (e.g. mountains, coffee, city)"
             defaultValue={DEFAULT_QUERY}
@@ -92,7 +91,6 @@ export function HomePage() {
         )}
       />
 
-      {/* Full-size preview with a save action */}
       <ImageModal
         image={active}
         open={active !== null}
