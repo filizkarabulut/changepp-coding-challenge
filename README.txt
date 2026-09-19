@@ -21,7 +21,7 @@ BACKEND
   cp .env.example .env
 
   Open .env and set:
-    MONGODB_URI=mongodb://localhost:27017/imageapp
+    MONGODB_URI=mongodb://localhost:27017/image-sharing-app
 
   Start MongoDB:
     docker start changepp-mongo
@@ -32,7 +32,9 @@ BACKEND
   Start the server:
     npm start
 
-  Backend runs at: http://localhost:5050
+  Backend runs at: http://localhost:5000
+  (If port 5000 is occupied, e.g. by macOS AirPlay, set PORT=5050 in .env
+   and update VITE_API_URL in the frontend step below accordingly.)
 
 FRONTEND
   cd frontend
@@ -40,7 +42,7 @@ FRONTEND
   cp .env.example .env.local
 
   Open .env.local and set:
-    VITE_API_URL=http://localhost:5050/api
+    VITE_API_URL=http://localhost:5000/api
     VITE_PIXABAY_API_KEY=your_key_here
 
   A free Pixabay API key can be obtained at https://pixabay.com/api/docs
